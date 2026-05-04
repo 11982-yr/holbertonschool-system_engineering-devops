@@ -1,0 +1,73 @@
+Scale Up Web Infrastructure - www.foobar.com
+
+User
+ |
+ | HTTPS request to www.foobar.com
+ v
+DNS
+ |
+ | www.foobar.com -> Load Balancer cluster IP
+ v
+Load Balancer Cluster
+ |
+ +-----------------------------+
+ |                             |
+ v                             v
+HAProxy Load Balancer 1        HAProxy Load Balancer 2
+Active                          Backup / Passive
+ |
+ v
+Firewall
+ |
+ v
+Web Server
+Nginx
+ |
+ v
+Application Server
+Application Files / Code Base
+ |
+ v
+Database Server
+MySQL Primary Database
+
+Additional Server:
+A new server is added so infrastructure components can be separated.
+Instead of running the web server, application server, and database on the same machine, each component can run on its own server.
+
+Additional Load Balancer:
+A second HAProxy load balancer is added and configured as a cluster with the first one.
+This removes the load balancer as a single point of failure.
+If one load balancer fails, the other can continue sending traffic to the infrastructure.
+
+Load Balancer Cluster:
+The load balancers can be configured in an Active-Passive setup.
+The active load balancer receives traffic.
+The passive load balancer waits as a backup and takes over if the active one fails.
+
+Split Components:
+The web server, application server, and database are split onto separate servers.
+
+Web Server:
+The Nginx web server handles HTTP/HTTPS requests from users.
+It serves static files and forwards dynamic requests to the application server.
+
+Application Server:
+The application server runs the backend logic of the website.
+It processes requests, executes the application code, and communicates with the database.
+
+Database Server:
+The MySQL database server stores persistent data.
+It handles data reads and writes requested by the application server.
+
+Why this infrastructure is better:
+Splitting components makes the infrastructure easier to scale.
+Each layer can be improved independently.
+For example, more web servers can be added if there is more traffic.
+More application servers can be added if the application logic needs more processing power.
+The database server can be optimized separately for storage and queries.
+
+Issues improved:
+The load balancer is no longer a single point of failure because there are two HAProxy instances in a cluster.
+The services are easier to maintain because each major component has its own server.
+The infrastructure is more scalable than having everything on the same machines.
