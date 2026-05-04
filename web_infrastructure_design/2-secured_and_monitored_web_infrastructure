@@ -1,0 +1,74 @@
+Secured and Monitored Web Infrastructure - www.foobar.com
+
+User
+ |
+ | HTTPS request to www.foobar.com
+ v
+DNS
+ |
+ | www.foobar.com -> Load Balancer IP
+ v
+Firewall 1
+ |
+ v
+HAProxy Load Balancer
+ |
+ | SSL certificate installed here
+ | decrypts HTTPS traffic
+ | distributes traffic using Round Robin
+ |
+ +-----------------------------+
+ |                             |
+ v                             v
+Firewall 2                     Firewall 3
+ |                             |
+ v                             v
+Server 1                       Server 2
+Nginx Web Server               Nginx Web Server
+Application Server             Application Server
+Application Files              Application Files
+MySQL Primary Database         MySQL Replica Database
+Monitoring Client              Monitoring Client
+
+Server 3
+MySQL Replica Database
+Monitoring Client
+
+
+Explanation:
+
+Three firewalls are added to control incoming and outgoing network traffic.
+Firewalls are used to block unauthorized access and only allow approved traffic, such as HTTP, HTTPS, SSH, or database traffic from trusted servers.
+
+An SSL certificate is added so www.foobar.com can be served over HTTPS.
+HTTPS encrypts traffic between the user's browser and the website.
+This protects sensitive data from being read or modified by attackers.
+
+Monitoring clients are added to collect metrics and logs from the servers.
+Monitoring is used to detect failures, performance issues, high traffic, low disk space, memory usage, CPU usage, and service problems.
+
+The monitoring tool collects data through agents installed on each server.
+These agents send logs, metrics, and health information to a monitoring service such as Sumologic, Datadog, or New Relic.
+
+To monitor web server QPS, which means queries per second or requests per second, configure the monitoring client to collect Nginx access logs or Nginx status metrics.
+The monitoring service can then count how many requests are received each second.
+
+Additional elements:
+
+Firewall 1 protects the load balancer.
+Firewall 2 protects Server 1.
+Firewall 3 protects Server 2.
+The SSL certificate enables encrypted HTTPS traffic.
+Monitoring clients allow the team to observe the health and performance of the infrastructure.
+
+Issues:
+
+Terminating SSL at the load balancer level can be an issue because traffic between the load balancer and the backend servers may be unencrypted.
+If someone gains access to the internal network, they could read or modify that traffic.
+
+Having only one MySQL server capable of accepting writes is an issue because the Primary database is a single point of failure for writes.
+If the Primary database fails, the application may not be able to create, update, or delete data.
+
+Having servers with all the same components can be a problem because web server, application server, and database processes compete for the same CPU, RAM, disk, and network resources.
+It also makes scaling harder because each component may need different resources.
+For example, the database may need more disk and memory, while the web server may need more network capacity.
