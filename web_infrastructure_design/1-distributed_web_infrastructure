@@ -1,0 +1,70 @@
+Distributed Web Infrastructure - www.foobar.com
+
+User
+ |
+ | types www.foobar.com in browser
+ v
+DNS
+ |
+ | www.foobar.com -> Load Balancer IP
+ v
+HAProxy Load Balancer
+ |
+ | distributes traffic using Round Robin
+ |
+ +-----------------------------+
+ |                             |
+ v                             v
+Server 1                       Server 2
+Nginx Web Server               Nginx Web Server
+Application Server             Application Server
+Application Files              Application Files
+MySQL Primary Database         MySQL Replica Database
+
+
+Explanation:
+
+A load balancer is added to distribute incoming traffic between multiple servers.
+This improves availability and allows the website to handle more traffic.
+
+Two servers are added so the website is not hosted on only one machine.
+Each server contains Nginx, an application server, application files, and MySQL.
+
+Nginx handles HTTP requests and can serve static content or forward requests to the application server.
+
+The application server runs the backend logic of the website.
+
+The application files are the website code base.
+
+MySQL stores persistent data used by the application.
+
+The load balancer uses the Round Robin algorithm.
+Round Robin sends requests to each server one after another in order.
+For example: request 1 goes to Server 1, request 2 goes to Server 2, request 3 goes back to Server 1.
+
+This is an Active-Active setup because both servers are receiving traffic at the same time.
+
+Active-Active means all servers are running and handling traffic.
+Active-Passive means one server handles traffic while another server waits as backup.
+
+The database uses a Primary-Replica setup.
+The Primary database handles write operations such as INSERT, UPDATE, and DELETE.
+The Replica database copies data from the Primary and can be used for read operations.
+
+The difference between the Primary and Replica nodes is that the application writes data to the Primary node, while the Replica node is mainly used for reading data and backup.
+
+Issues:
+
+There is still a SPOF because there is only one load balancer.
+If HAProxy fails, users cannot reach the servers.
+
+There can also be a SPOF if the Primary database fails and there is no automatic failover.
+
+There are security issues because there is no firewall.
+The servers and database may be exposed to unwanted traffic.
+
+There is no HTTPS.
+Traffic between the user and the website is not encrypted.
+
+There is no monitoring.
+If a server, service, or database fails, the team may not know immediately.
